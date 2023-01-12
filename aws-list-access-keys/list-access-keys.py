@@ -16,7 +16,7 @@ for user in resource.users.all():
             LastUsed = client.get_access_key_last_used(AccessKeyId=AccessId)
             status = "INACTIVE"
             if (Status == "Active"):
-                status = "NEVER USED"
+                status = "NEVER"
                 if "LastUsedDate" in LastUsed["AccessKeyLastUsed"]:
                     status = str(LastUsed["AccessKeyLastUsed"]["LastUsedDate"])[:10]
-            print(f"Key: {AccessId}\tCreated: {str(key.create_date)[:10]}\tStatus: {status}\tUser: {user.user_name}")
+            print(f"Key: {AccessId}\tCreated: {str(key.create_date)[:10]}\tLast Used: {status}\tUser: {user.user_name}")
