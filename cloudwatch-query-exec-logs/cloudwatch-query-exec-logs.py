@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from urllib.parse import parse_qs
 
 def format_record(record):
-    out = {}
+    out = { 'event': 'exec' }
     for item in record:
         key = item['field']
         if key == 'command':
