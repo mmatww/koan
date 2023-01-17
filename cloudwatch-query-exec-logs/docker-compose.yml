@@ -1,0 +1,5 @@
+services:
+  query:
+    image: licenseplated/cloudwatch-query-exec-logs
+    build: .
+    command: python cloudwatch-query-exec-logs.py
