@@ -6,19 +6,6 @@ import time
 from datetime import datetime, timedelta
 from urllib.parse import parse_qs
 
-def format_record(record):
-    out = { 'event': 'exec' }
-    for item in record:
-        key = item['field']
-        if key == 'command':
-            out['command'] = ' '.join(parse_qs(item['value']).get('command', []))
-            continue
-        if key not in QUERY_PRUNE_LIST:
-            out[key] = item['value']
-    return json.dumps(out)
-
-client = boto3.client('logs')
-
 QUERY_LOG_GROUP = os.getenv('QUERY_LOG_GROUP', '/query_log_group/not/set')
 QUERY_TIMESPAN_MINS = int(os.getenv('QUERY_TIMESPAN_MINS', '5'))
 QUERY_SLEEP_SECS = int(os.getenv('QUERY_SLEEP_SECS', '10'))
@@ -33,9 +20,19 @@ fields @timestamp as timestamp, user.username as role, user.extra.sessionName.0 
 | parse requestURI "exec?*&container=" as command
 '''
 
-now = datetime.now()
-print(f'Querying {QUERY_LOG_GROUP} at {now}...')
+def format_record(record):
+    out = { 'action': 'user-exec' }
+    for item in record:
+        key = item['field']
+        if key == 'command':
+            out['command'] = ' '.join(parse_qs(item['value']).get('command', []))
+            continue
+        if key not in QUERY_PRUNE_LIST:
+            out[key] = item['value']
+    return json.dumps(out)
 
+now = datetime.now()
+client = boto3.client('logs')
 query_response = client.start_query(
     logGroupName=QUERY_LOG_GROUP,
     startTime=int((now - timedelta(minutes=QUERY_TIMESPAN_MINS)).timestamp()),
@@ -56,6 +53,3 @@ for record in results['results']:
     except Exception as ex:
         print(str(ex))
         print(record)
-
-now = datetime.now()
-print(f'Completed at {now}...')
