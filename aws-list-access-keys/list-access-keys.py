@@ -8,15 +8,14 @@ resource = boto3.resource("iam")
 client = boto3.client("iam")
 
 for user in resource.users.all():
-    Metadata = client.list_access_keys(UserName=user.user_name)
-    if Metadata["AccessKeyMetadata"]:
+    metadata = client.list_access_keys(UserName=user.user_name)
+    if metadata["AccessKeyMetadata"]:
         for key in user.access_keys.all():
-            AccessId = key.access_key_id
-            Status = key.status
-            LastUsed = client.get_access_key_last_used(AccessKeyId=AccessId)
-            status = "INACTIVE"
-            if (Status == "Active"):
+            access_id = key.access_key_id
+            status = key.status
+            last_used = client.get_access_key_last_used(AccessKeyId=access_id)
+            if (status == "Active"):
                 status = "NEVER"
-                if "LastUsedDate" in LastUsed["AccessKeyLastUsed"]:
-                    status = str(LastUsed["AccessKeyLastUsed"]["LastUsedDate"])[:10]
-            print(f"Key: {AccessId}\tCreated: {str(key.create_date)[:10]}\tLast Used: {status}\tUser: {user.user_name}")
+                if "LastUsedDate" in last_used["AccessKeyLastUsed"]:
+                    status = str(last_used["AccessKeyLastUsed"]["LastUsedDate"])[:10]
+            print(f"Key: {access_id}\tCreated: {str(key.create_date)[:10]}\tLast Used: {status.upper()}\tUser: {user.user_name}")
