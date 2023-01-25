@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cloudwatch-query-exec-logs
+spec:
+  schedule: "5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            iam.amazonaws.com/role: CloudWatchLogsReadOnlyAccess
+          labels:
+            app: exec-usage-report
+        spec:
+          containers:
+          - name: cloudwatch-query-exec-logs
+            image: licenseplated/cloudwatch-query-exec-logs:latest
+            env:
+            - name: AWS_DEFAULT_REGION
+              value: us-west-2
+            - name: QUERY_LOG_GROUP
+              value: /aws/eks/wek8s-phoenix/cluster
+            - name: QUERY_TIMESPAN_MINS
+              value: "65"
+            command:
+            - python
+            - cloudwatch-query-exec-logs.py
+          restartPolicy: OnFailure

@@ -12,7 +12,7 @@ QUERY_SLEEP_SECS = int(os.getenv('QUERY_SLEEP_SECS', '10'))
 QUERY_PRUNE_LIST = os.getenv('QUERY_PRUNE_LIST', '@ptr').split(',')
 
 QUERY_TEXT = '''
-fields @timestamp as timestamp, user.username as role, user.extra.sessionName.0 as username, objectRef.namespace as namespace, objectRef.name as pod
+fields @timestamp as timestamp, user.username as role, user.extra.sessionName.0 as username, objectRef.namespace as namespace, objectRef.name as pod, annotations.authorization.k8s.io/decision as decision
 | filter @logStream like /^kube-apiserver-audit/
 | filter objectRef.resource = "pods"
 | filter objectRef.subresource = "exec"
